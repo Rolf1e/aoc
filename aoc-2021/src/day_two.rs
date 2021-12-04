@@ -21,6 +21,27 @@ fn compute_horizontal_position_and_depth(commands: Vec<Command>) -> (i16, i16) {
     (horizontal_position, depth)
 }
 
+fn compute_horizontal_position_and_depth_with_aim(commands: Vec<Command>) -> (i32, i32) {
+    let mut horizontal_position: i32 = 0;
+    let mut depth: i32 = 0;
+    let mut aim: i32 = 0;
+
+    for Command(direction, length) in commands {
+        if direction == "forward" {
+            horizontal_position += length as i32;
+            depth += aim * length as i32;
+        }
+        // It's a submarine, up and down are inverted
+        else if direction == "up" {
+            aim -= length as i32;
+        } else if direction == "down" {
+            aim += length as i32;
+        }
+    }
+
+    (horizontal_position, depth)
+}
+
 fn parse_file(file_name: &str) -> Vec<Command> {
     match read_aoc_input(file_name) {
         Ok(content) => content
@@ -55,7 +76,10 @@ fn parse_row(row: &String) -> Command {
 mod tests {
     use aoc_core;
 
-    use crate::day_two::{Command, compute_horizontal_position_and_depth, parse_file};
+    use crate::day_two::{
+        compute_horizontal_position_and_depth, compute_horizontal_position_and_depth_with_aim,
+        parse_file, Command,
+    };
 
     // Part one
     #[test]
@@ -80,7 +104,32 @@ mod tests {
 
         let commands = parse_file(file_name);
         let (horizontal_position, depth) = compute_horizontal_position_and_depth(commands);
-        println!("{} {}", horizontal_position, depth);
-        assert_eq!(150, horizontal_position as i32 * depth as i32);
+        assert_eq!(2070300, horizontal_position as i32 * depth as i32);
+    }
+
+    // Part two
+    #[test]
+    fn should_be_900() {
+        let commands = vec![
+            Command(String::from("forward"), 5),
+            Command(String::from("down"), 5),
+            Command(String::from("forward"), 8),
+            Command(String::from("up"), 3),
+            Command(String::from("down"), 8),
+            Command(String::from("forward"), 2),
+        ];
+
+        let (horizontal_position, depth) = compute_horizontal_position_and_depth_with_aim(commands);
+        assert_eq!(900, horizontal_position as i32 * depth as i32);
+    }
+
+    #[test]
+    fn should_make_second_input() {
+        let file_name = "inputs/day2/input1.txt";
+        aoc_core::add_file_to_binary(file_name);
+
+        let commands = parse_file(file_name);
+        let (horizontal_position, depth) = compute_horizontal_position_and_depth_with_aim(commands);
+        assert_eq!(2078985210, horizontal_position as i64 * depth as i64);
     }
 }
