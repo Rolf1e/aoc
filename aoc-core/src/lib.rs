@@ -21,6 +21,12 @@ pub fn string_to_i32(s: &String) -> i32 {
     }
 }
 
+pub fn string_to_i8(c: &char) -> i8 {
+    match c.to_digit(2) {
+        Some(i) => i as i8,
+        None => panic!("Failed to parse {}", c),
+    }
+}
 
 fn read_file(file_name: &str) -> Result<String, AocException> {
     match fs::read_to_string(file_name) {
