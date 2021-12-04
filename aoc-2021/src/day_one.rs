@@ -1,4 +1,4 @@
-use aoc_core::read_aoc_input;
+use aoc_core;
 
 fn count_larger(measurements: Vec<i32>) -> i16 {
     let mut greater_than_previous = 0;
@@ -43,16 +43,15 @@ fn count_larger_2(measurements: Vec<i32>) -> i16 {
         first += 1;
         second += 1;
         third += 1;
-
     }
 }
 
 fn parse_file(file_name: &str) -> Vec<i32> {
-    match read_aoc_input(file_name) {
+    match aoc_core::read_aoc_input(file_name) {
         Ok(content) => content
             .iter()
             .filter(|s| !s.is_empty())
-            .map(|s| string_to_i32(s))
+            .map(|s| aoc_core::string_to_i32(s))
             .collect(),
         Err(e) => {
             panic!("{}", e.message())
@@ -60,18 +59,11 @@ fn parse_file(file_name: &str) -> Vec<i32> {
     }
 }
 
-fn string_to_i32(s: &String) -> i32 {
-    match s.parse::<i32>() {
-        Ok(i) => i,
-        Err(e) => panic!("{}", e),
-    }
-}
-
 /// https://adventofcode.com/2021/day/1
 #[cfg(test)]
 mod tests {
     use crate::day_one::{count_larger, count_larger_2, parse_file};
-    use std::path::PathBuf;
+    use aoc_core;
 
     // Part one
     #[test]
@@ -82,9 +74,8 @@ mod tests {
 
     #[test]
     fn should_make_first_input() {
-        let file_name = "inputs/2021/day1/input1.txt";
-        let mut dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        dir.push(file_name);
+        let file_name = "inputs/day1/input1.txt";
+        aoc_core::add_file_to_binary(file_name);
 
         let measurements = parse_file(file_name);
         assert_eq!(1167, count_larger(measurements));
@@ -99,11 +90,10 @@ mod tests {
     }
     #[test]
     fn should_make_second_input() {
-        let file_name = "inputs/2021/day1/input2.txt";
-        let mut dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        dir.push(file_name);
+        let file_name = "inputs/day1/input2.txt";
+        aoc_core::add_file_to_binary(file_name);
 
         let measurements = parse_file(file_name);
-        assert_eq!(1167, count_larger_2(measurements));
+        assert_eq!(1130, count_larger_2(measurements));
     }
 }
