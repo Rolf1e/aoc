@@ -2,5 +2,6 @@
 
 members = [
     "aoc-core",
+    "aoc-2015",
     "aoc-2021"
 ]
