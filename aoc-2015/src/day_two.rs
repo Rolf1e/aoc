@@ -36,6 +36,10 @@ impl PresentBox {
 pub mod test_2015_day_two {
     use crate::day_two::find_square_feet_of_wrapping_paper;
 
+    fn split_input(input: &str) -> Vec<String> {
+        input.split('\n').map(|s| s.to_string()).collect()
+    }
+
     // === Part one ===
 
     #[test]
@@ -46,5 +50,23 @@ pub mod test_2015_day_two {
     #[test]
     pub fn should_be_43() {
         assert_eq!(43, find_square_feet_of_wrapping_paper("1x1x10"));
+    }
+
+    #[test]
+    pub fn should_do_input_1() {
+        let file_name = "inputs/day2/input1.txt";
+        aoc_core::add_file_to_binary(file_name);
+        match aoc_core::read_file(file_name) {
+            Ok(content) => {
+                let res = split_input(&content)
+                    .iter()
+                    .filter(|row| !row.is_empty())
+                    .map(|row| find_square_feet_of_wrapping_paper(row))
+                    .sum::<i32>();
+
+                assert_eq!(1598415, res);
+            }
+            Err(e) => println!("{}", e),
+        }
     }
 }
