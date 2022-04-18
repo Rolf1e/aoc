@@ -22,9 +22,26 @@ fn floor_rule(c: char) -> i8 {
     }
 }
 
+/// Part two:
+/// Find position of the first character that makes -1
+pub fn position_first_character_enter_basement(input: &str) -> Option<i32> {
+    let mut position = 1;
+    let mut current_floor_level = 0;
+    for c in input.chars() {
+        current_floor_level += floor_rule(c) as i32;
+        if current_floor_level == -1 {
+            return Some(position);
+        } else {
+            position += 1;
+        }
+    }
+
+    None
+}
+
 #[cfg(test)]
 pub mod test_2015_day_one {
-    use crate::day_one::resolve_floor_level;
+    use crate::day_one::{position_first_character_enter_basement, resolve_floor_level};
 
     // === Part one ===
     #[test]
@@ -53,7 +70,7 @@ pub mod test_2015_day_one {
     }
 
     #[test]
-    pub fn should_read_input() {
+    pub fn should_read_input_1() {
         let file_name = "inputs/day1/input1.txt";
         aoc_core::add_file_to_binary(file_name);
         match aoc_core::read_file(file_name) {
@@ -63,4 +80,28 @@ pub mod test_2015_day_one {
             Err(e) => println!("{}", e),
         }
     }
+
+    // === Part two ===
+    #[test]
+    pub fn should_enter_basement_at_1() {
+        assert_eq!(Some(1), position_first_character_enter_basement(")"));
+    }
+
+    #[test]
+    pub fn should_enter_basement_at_5() {
+        assert_eq!(Some(5), position_first_character_enter_basement("()())"));
+    }
+
+    #[test]
+    pub fn should_read_input_2() {
+        let file_name = "inputs/day1/input1.txt";
+        aoc_core::add_file_to_binary(file_name);
+        match aoc_core::read_file(file_name) {
+            Ok(content) => {
+                assert_eq!(Some(1783), position_first_character_enter_basement(&content));
+            }
+            Err(e) => println!("{}", e),
+        }
+    }
+
 }
