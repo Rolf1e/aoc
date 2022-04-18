@@ -50,7 +50,7 @@ fn parse_file(file_name: &str) -> Vec<Command> {
             .map(|s| parse_row(&s))
             .collect(),
         Err(e) => {
-            panic!("{}", e.message())
+            panic!("{}", e)
         }
     }
 }

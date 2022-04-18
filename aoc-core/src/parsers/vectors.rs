@@ -19,7 +19,7 @@ where
             .map(|s| f(s))
             .collect(),
         Err(e) => {
-            panic!("{}", e.message())
+            panic!("{}", e)
         }
     }
 }

@@ -8,7 +8,7 @@ pub fn parse_file_to_matrix_i8(file_name: &str) -> Vec<Vec<i8>> {
             .map(|row| parse_row(row))
             .collect(),
         Err(e) => {
-            panic!("{}", e.message())
+            panic!("{}", e)
         }
     }
 }

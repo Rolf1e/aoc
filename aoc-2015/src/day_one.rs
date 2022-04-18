@@ -51,4 +51,16 @@ pub mod test_2015_day_one {
         assert_eq!(-3, resolve_floor_level(")))"));
         assert_eq!(-3, resolve_floor_level(")())())"));
     }
+
+    #[test]
+    pub fn should_read_input() {
+        let file_name = "inputs/day1/input1.txt";
+        aoc_core::add_file_to_binary(file_name);
+        match aoc_core::read_file(file_name) {
+            Ok(content) => {
+                assert_eq!(232, resolve_floor_level(&content));
+            }
+            Err(e) => println!("{}", e),
+        }
+    }
 }
