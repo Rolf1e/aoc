@@ -61,7 +61,7 @@ fn parse_row(row: &String) -> Command {
         if let Some(length) = iter.next() {
             Command(
                 String::from(direction),
-                aoc_core::string_to_i32(&String::from(length)) as i8,
+                aoc_core::parsers::unique::string_to_i32(&String::from(length)) as i8,
             )
         } else {
             panic!("Failed to parse length from row {}", row);

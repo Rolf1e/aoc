@@ -1,6 +1,8 @@
 use std::fs;
 use std::path::PathBuf;
 
+pub mod parsers;
+
 pub fn add_file_to_binary(file_name: &str) {
     let mut dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     dir.push(file_name);
@@ -12,20 +14,6 @@ pub fn read_aoc_input(file_name: &str) -> Result<Vec<String>, AocException> {
         .map(|s| s.to_string())
         .collect();
     Ok(content)
-}
-
-pub fn string_to_i32(s: &String) -> i32 {
-    match s.parse::<i32>() {
-        Ok(i) => i,
-        Err(e) => panic!("{}", e),
-    }
-}
-
-pub fn string_to_i8(c: &char) -> i8 {
-    match c.to_digit(2) {
-        Some(i) => i as i8,
-        None => panic!("Failed to parse {}", c),
-    }
 }
 
 fn read_file(file_name: &str) -> Result<String, AocException> {

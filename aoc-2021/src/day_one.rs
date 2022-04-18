@@ -46,23 +46,11 @@ fn count_larger_2(measurements: Vec<i32>) -> i16 {
     }
 }
 
-fn parse_file(file_name: &str) -> Vec<i32> {
-    match aoc_core::read_aoc_input(file_name) {
-        Ok(content) => content
-            .iter()
-            .filter(|s| !s.is_empty())
-            .map(|s| aoc_core::string_to_i32(s))
-            .collect(),
-        Err(e) => {
-            panic!("{}", e.message())
-        }
-    }
-}
-
 /// https://adventofcode.com/2021/day/1
 #[cfg(test)]
 mod tests {
-    use crate::day_one::{count_larger, count_larger_2, parse_file};
+    use crate::day_one::{count_larger, count_larger_2};
+    use aoc_core::parsers::vectors;
     use aoc_core;
 
     // Part one
@@ -77,7 +65,7 @@ mod tests {
         let file_name = "inputs/day1/input1.txt";
         aoc_core::add_file_to_binary(file_name);
 
-        let measurements = parse_file(file_name);
+        let measurements = vectors::parse_file_to_i32(file_name);
         assert_eq!(1167, count_larger(measurements));
     }
 
@@ -93,7 +81,7 @@ mod tests {
         let file_name = "inputs/day1/input2.txt";
         aoc_core::add_file_to_binary(file_name);
 
-        let measurements = parse_file(file_name);
+        let measurements = vectors::parse_file_to_i32(file_name);
         assert_eq!(1130, count_larger_2(measurements));
     }
 }

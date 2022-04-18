@@ -130,30 +130,13 @@ fn extract_column(reports: &Vec<Vec<i8>>, index: usize) -> Vec<i8> {
     reports.iter().map(|row| row[index]).collect()
 }
 
-fn parse_file(file_name: &str) -> Vec<Vec<i8>> {
-    match aoc_core::read_aoc_input(file_name) {
-        Ok(content) => content
-            .iter()
-            .filter(|s| !s.is_empty())
-            .map(|row| parse_row(row))
-            .collect(),
-        Err(e) => {
-            panic!("{}", e.message())
-        }
-    }
-}
-
-fn parse_row(row: &String) -> Vec<i8> {
-    row.chars().map(|c| aoc_core::string_to_i8(&c)).collect()
-}
 
 /// https://adventofcode.com/2021/day/3
 #[cfg(test)]
 mod tests {
     use crate::day_three::{compute_gamma_and_epsilon_rates, compute_oxygen_and_co2_rates};
     use aoc_core;
-
-    use super::parse_file;
+    use aoc_core::parsers::matrix;
 
     // Part one
     #[test]
@@ -181,7 +164,7 @@ mod tests {
         let file_name = "inputs/day3/input1.txt";
         aoc_core::add_file_to_binary(file_name);
 
-        let reports = parse_file(file_name);
+        let reports = matrix::parse_file_to_matrix_i8(file_name);
         assert_eq!(2640986, compute_gamma_and_epsilon_rates(reports));
     }
 
@@ -211,7 +194,7 @@ mod tests {
         let file_name = "inputs/day3/input1.txt";
         aoc_core::add_file_to_binary(file_name);
 
-        let reports = parse_file(file_name);
+        let reports = matrix::parse_file_to_matrix_i8(file_name);
         assert_eq!(6822109, compute_oxygen_and_co2_rates(reports));
     }
 }
