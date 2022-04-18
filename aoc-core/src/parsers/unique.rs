@@ -1,4 +1,4 @@
-pub fn string_to_i32(s: &String) -> i32 {
+pub fn string_to_i32(s: &str) -> i32 {
     match s.parse::<i32>() {
         Ok(i) => i,
         Err(e) => panic!("{}", e),
