@@ -8,3 +8,6 @@ edition = "2021"
 [dependencies]
 
 aoc-core = { path = "../aoc-core" }
+
+md-5 = "0.10.1"
+regex = "1"
