@@ -59,10 +59,8 @@ impl PresentBox {
 #[cfg(test)]
 pub mod test_2015_day_two {
     use crate::day_two::{find_feet_of_rubon, find_square_feet_of_wrapping_paper};
+    use crate::split_input;
 
-    fn split_input(input: &str) -> Vec<String> {
-        input.split('\n').map(|s| s.to_string()).collect()
-    }
 
     // === Part one ===
 
