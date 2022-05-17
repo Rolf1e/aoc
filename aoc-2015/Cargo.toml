@@ -11,4 +11,5 @@ aoc-core = { path = "../aoc-core" }
 
 md-5 = "0.10.1"
 regex = "1"
+fancy-regex = "0.10.0"
 itertools = "0.10.2"

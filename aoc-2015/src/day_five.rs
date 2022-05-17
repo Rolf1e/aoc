@@ -4,70 +4,63 @@ use itertools::Itertools;
 #[derive(Debug, PartialEq)]
 pub enum StringStatus {
     Nice,
+    // Rule set one
     NaugthyVowels,
     NaugthyExcluded,
     NaugthyDoubleLetter,
+    // Rule set two
+    NaugthyNoDoublePair,
+    NaugthyNoLetterBetweenPair,
 }
 
+// Part one:
 pub fn find_string_status(input: &str) -> StringStatus {
-    if check_for_excluded_strings(input) {
-        StringStatus::NaugthyExcluded
-    } else if check_for_three_vowels(input) {
-        StringStatus::NaugthyVowels
-    } else if check_for_double_letter(input) {
-        StringStatus::NaugthyDoubleLetter
-    } else {
-        StringStatus::Nice
+    let check_for_three_vowels =
+        regex::Regex::new(r"[aeiou].*[aeiou].*[aeiou]").unwrap_or_else(|e| panic!("{}", e));
+    if !check_for_three_vowels.is_match(input) {
+        return StringStatus::NaugthyVowels;
     }
-}
 
-fn check_for_double_letter(input: &str) -> bool {
-    let chars = input.chars().collect_vec();
-    let mut last_char: char = chars[0];
-    let mut occurence = 1;
-    for i in 1..chars.len() {
-        let c = chars[i];
-        if last_char != c {
-            last_char = c;
-            occurence = 1;
-        } else {
-            occurence += 1;
-        }
-
-        if occurence == 2 {
-            return false;
-        }
+    let check_for_double_letter =
+        fancy_regex::Regex::new(r"(.)(\1)").unwrap_or_else(|e| panic!("{}", e));
+    let check_for_double_letter = check_for_double_letter.is_match(input);
+    assert!(check_for_double_letter.is_ok());
+    if !check_for_double_letter.unwrap() {
+        return StringStatus::NaugthyDoubleLetter;
     }
-    return true;
-}
 
-#[test]
-pub fn should_be_ok_for_double_letters() {
-    assert!(!check_for_double_letter("aabbccdd"));
-    assert!(!check_for_double_letter("abcdde"));
-}
-
-fn check_for_three_vowels(input: &str) -> bool {
-    input.chars().filter(is_vowels).count() < 3
-}
-
-fn is_vowels(c: &char) -> bool {
-    match c {
-        'a' | 'e' | 'i' | 'o' | 'u' => true,
-        _ => false,
+    let check_for_excluded_strings =
+        regex::Regex::new(r"(ab|cd|pq|xy)").unwrap_or_else(|e| panic!("{}", e));
+    if check_for_excluded_strings.is_match(input) {
+        return StringStatus::NaugthyExcluded;
     }
+    StringStatus::Nice
 }
 
-fn check_for_excluded_strings(input: &str) -> bool {
-    input.contains("ab")
-        || input.contains("cd")
-        || input.contains("pq")
-        || input.contains("xy")
+// Part two:
+pub fn find_string_status_with_new_rules(input: &str) -> StringStatus {
+    let check_for_letter_appear_two_times =
+        fancy_regex::Regex::new(r"(..).*(\1)").unwrap_or_else(|e| panic!("{}", e));
+    let check_for_letter_appear_two_times = check_for_letter_appear_two_times.is_match(input);
+    assert!(check_for_letter_appear_two_times.is_ok());
+    if !check_for_letter_appear_two_times.unwrap() {
+        return StringStatus::NaugthyNoDoublePair;
+    }
+
+    let check_for_repeating_letter =
+        fancy_regex::Regex::new(r"(.).(\1)").unwrap_or_else(|e| panic!("{}", e));
+    let check_for_repeating_letter = check_for_repeating_letter.is_match(input);
+    assert!(check_for_repeating_letter.is_ok());
+    if !check_for_repeating_letter.unwrap() {
+        return StringStatus::NaugthyNoLetterBetweenPair;
+    }
+
+    StringStatus::Nice
 }
 
 #[cfg(test)]
 pub mod test_2015_day_five {
-    use crate::day_five::{find_string_status, StringStatus};
+    use crate::day_five::{find_string_status, find_string_status_with_new_rules, StringStatus};
     use crate::split_input;
 
     // === Part one ===
@@ -99,9 +92,9 @@ pub mod test_2015_day_five {
             StringStatus::NaugthyDoubleLetter,
             find_string_status("jchzalrnumimnmhp")
         );
-
     }
 
+    // === Part one ===
     #[test]
     pub fn should_treat_input_1() {
         let file_name = "inputs/day5/input1.txt";
@@ -117,6 +110,55 @@ pub mod test_2015_day_five {
 
                 dbg!(&content.len());
                 assert_eq!(255, content.len());
+            }
+            Err(e) => println!("{}", e),
+        }
+    }
+
+    // === Part two ===
+    #[test]
+    pub fn should_have_pair_appearing_twice() {
+        assert_eq!(
+            StringStatus::NaugthyNoDoublePair,
+            find_string_status_with_new_rules("ieodomkazucvgmuy")
+        );
+    }
+
+    #[test]
+    pub fn should_be_nice_2() {
+        assert_eq!(
+            StringStatus::Nice,
+            find_string_status_with_new_rules("qjhvhtzxzqqjkmpb")
+        );
+        assert_eq!(
+            StringStatus::Nice,
+            find_string_status_with_new_rules("xxyxx")
+        );
+    }
+
+    #[test]
+    pub fn should_have_repeating_letter_without_one_in_the_middle() {
+        assert_eq!(
+            StringStatus::NaugthyNoLetterBetweenPair,
+            find_string_status_with_new_rules("uurcxstgmygtbstg")
+        );
+    }
+
+    #[test]
+    pub fn should_treat_input_2() {
+        let file_name = "inputs/day5/input1.txt";
+        aoc_core::add_file_to_binary(file_name);
+        match aoc_core::read_file(file_name) {
+            Ok(content) => {
+                let content: Vec<_> = split_input(&content)
+                    .iter()
+                    .filter(|row| !row.is_empty())
+                    .map(|row| find_string_status_with_new_rules(row))
+                    .filter(|status| &StringStatus::Nice == status)
+                    .collect();
+
+                dbg!(&content.len());
+                assert_eq!(55, content.len());
             }
             Err(e) => println!("{}", e),
         }
