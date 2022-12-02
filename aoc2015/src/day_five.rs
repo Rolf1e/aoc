@@ -97,7 +97,7 @@ pub mod test_2015_day_five {
     // === Part one ===
     #[test]
     pub fn should_treat_input_1() {
-        let file_name = "inputs/day5/input1.txt";
+        let file_name = "resources/inputs/day5/input1.txt";
         aoc_core::add_file_to_binary(file_name);
         match aoc_core::read_file(file_name) {
             Ok(content) => {
@@ -146,7 +146,7 @@ pub mod test_2015_day_five {
 
     #[test]
     pub fn should_treat_input_2() {
-        let file_name = "inputs/day5/input1.txt";
+        let file_name = "resources/inputs/day5/input1.txt";
         aoc_core::add_file_to_binary(file_name);
         match aoc_core::read_file(file_name) {
             Ok(content) => {

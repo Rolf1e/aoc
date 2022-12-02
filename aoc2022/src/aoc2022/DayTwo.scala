@@ -1,5 +1,7 @@
 package aoc2022
 
+import aoccore.Day
+
 object DayTwo extends Day {
   override def fileName: String = "inputs/daytwo.txt"
 

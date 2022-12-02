@@ -99,7 +99,7 @@ mod tests {
 
     #[test]
     fn should_make_first_input() {
-        let file_name = "inputs/day2/input1.txt";
+        let file_name = "resources/inputs/day2/input1.txt";
         aoc_core::add_file_to_binary(file_name);
 
         let commands = parse_file(file_name);
@@ -125,7 +125,7 @@ mod tests {
 
     #[test]
     fn should_make_second_input() {
-        let file_name = "inputs/day2/input1.txt";
+        let file_name = "resources/inputs/day2/input1.txt";
         aoc_core::add_file_to_binary(file_name);
 
         let commands = parse_file(file_name);
