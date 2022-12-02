@@ -1,9 +1,12 @@
 package aoc2022
 
 object Main extends App {
-  val days = Seq[Day](DayOne)
-  for (day <- days) {
+  private val days = Seq[Day](DayOne, DayTwo)
+  for ((day, i) <- days.zipWithIndex) {
+    println(s"=== Day: ${i + 1} === ")
+    println("=> Part 1")
     day.partOne()
+    println("=> Part 2")
     day.partTwo()
   }
 }
