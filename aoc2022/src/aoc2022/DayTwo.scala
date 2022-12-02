@@ -4,47 +4,103 @@ object DayTwo extends Day {
   override def fileName: String = "inputs/daytwo.txt"
 
   override def partOne(): Unit = {
+
+    /**
+     * Winner is returned
+     */
+    def battle(me: Shape, opponent: Shape): Int = {
+      (me, opponent) match {
+        case (Rock(), Paper()) => Rock().factor + 0
+        case (Rock(), Rock()) => Rock().factor + 3
+        case (Rock(), Scissors()) => Rock().factor + 6
+
+        case (Paper(), Scissors()) => Paper().factor + 0
+        case (Paper(), Paper()) => Paper().factor + 3
+        case (Paper(), Rock()) => Paper().factor + 6
+
+        case (Scissors(), Rock()) => Scissors().factor + 0
+        case (Scissors(), Scissors()) => Scissors().factor + 3
+        case (Scissors(), Paper()) => Scissors().factor + 6
+      }
+    }
+
     val lines = loadFromResource()
     val score = for (line <- lines) yield {
       line match {
         case s"$opponent $me" => {
           val shapeOpponent = Shape.from(opponent(0))
           val shapeMe = Shape.from(me(0))
-          shapeMe.battle(shapeOpponent)
+          battle(shapeMe, shapeOpponent)
         }
       }
     }
 
-    println(s"You score is ${score.sum}. Details($score)")
+    println(s"You score is ${score.sum}.")
+  }
+
+  override def partTwo(): Unit = {
+
+    /**
+     * Winner is returned
+     */
+    def battle(target: Outcome, opponent: Shape): Int = {
+      (target, opponent) match {
+        case (Loss, Paper()) => Rock().factor + 0
+        case (Draw, Rock()) => Rock().factor + 3
+        case (Win, Scissors()) => Rock().factor + 6
+
+        case (Loss, Scissors()) => Paper().factor + 0
+        case (Draw, Paper()) => Paper().factor + 3
+        case (Win, Rock()) => Paper().factor + 6
+
+        case (Loss, Rock()) => Scissors().factor + 0
+        case (Draw, Scissors()) => Scissors().factor + 3
+        case (Win, Paper()) => Scissors().factor + 6
+      }
+    }
+
+    val lines = loadFromResource()
+    val score = for (line <- lines) yield {
+      line match {
+        case s"$opponent $outcome" => {
+          val shapeOpponent = Shape.from(opponent(0))
+          val outCome = Outcome.from(outcome(0))
+          battle(outCome, shapeOpponent)
+        }
+      }
+    }
+
+    println(s"You score is ${score.sum}.")
 
   }
 
-  override def partTwo(): Unit = ???
 }
+
+object Outcome {
+
+  def from(char: Char): Outcome = {
+    char match {
+      case 'X' => Loss
+      case 'Y' => Draw
+      case 'Z' => Win
+      case _ => throw new IllegalArgumentException(char.toString)
+    }
+  }
+}
+
+sealed trait Outcome
+
+object Draw extends Outcome
+
+object Loss extends Outcome
+
+object Win extends Outcome
 
 sealed trait Shape {
   def symbol(me: Boolean): Char
 
   def factor: Int
 
-  /**
-   * Winner is returned
-   */
-  def battle(opponent: Shape): Int = {
-    (this, opponent) match {
-      case (Rock(), Paper()) => Rock().factor + 0
-      case (Rock(), Rock()) => Rock().factor + 3
-      case (Rock(), Scissors()) => Rock().factor + 6
-
-      case (Paper(), Scissors()) => Paper().factor + 0
-      case (Paper(), Paper()) => Paper().factor + 3
-      case (Paper(), Rock()) => Paper().factor + 6
-
-      case (Scissors(), Rock()) => Scissors().factor + 0
-      case (Scissors(), Scissors()) => Scissors().factor + 3
-      case (Scissors(), Paper()) => Scissors().factor + 6
-    }
-  }
 }
 
 object Shape {
