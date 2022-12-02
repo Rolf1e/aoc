@@ -10,17 +10,17 @@ object DayTwo extends Day {
      */
     def battle(me: Shape, opponent: Shape): Int = {
       (me, opponent) match {
-        case (Rock(), Paper()) => Rock().factor + 0
-        case (Rock(), Rock()) => Rock().factor + 3
-        case (Rock(), Scissors()) => Rock().factor + 6
+        case (Rock(), Paper()) => Rock().factor + Loss.point
+        case (Rock(), Rock()) => Rock().factor + Draw.point
+        case (Rock(), Scissors()) => Rock().factor + Win.point
 
-        case (Paper(), Scissors()) => Paper().factor + 0
-        case (Paper(), Paper()) => Paper().factor + 3
-        case (Paper(), Rock()) => Paper().factor + 6
+        case (Paper(), Scissors()) => Paper().factor + Loss.point
+        case (Paper(), Paper()) => Paper().factor + Draw.point
+        case (Paper(), Rock()) => Paper().factor + Win.point
 
-        case (Scissors(), Rock()) => Scissors().factor + 0
-        case (Scissors(), Scissors()) => Scissors().factor + 3
-        case (Scissors(), Paper()) => Scissors().factor + 6
+        case (Scissors(), Rock()) => Scissors().factor + Loss.point
+        case (Scissors(), Scissors()) => Scissors().factor + Draw.point
+        case (Scissors(), Paper()) => Scissors().factor + Win.point
       }
     }
 
@@ -40,22 +40,19 @@ object DayTwo extends Day {
 
   override def partTwo(): Unit = {
 
-    /**
-     * Winner is returned
-     */
     def battle(target: Outcome, opponent: Shape): Int = {
       (target, opponent) match {
-        case (Loss, Paper()) => Rock().factor + 0
-        case (Draw, Rock()) => Rock().factor + 3
-        case (Win, Scissors()) => Rock().factor + 6
+        case (Loss, Paper()) => Rock().factor + Loss.point
+        case (Draw, Rock()) => Rock().factor + Draw.point
+        case (Win, Scissors()) => Rock().factor + Win.point
 
-        case (Loss, Scissors()) => Paper().factor + 0
-        case (Draw, Paper()) => Paper().factor + 3
-        case (Win, Rock()) => Paper().factor + 6
+        case (Loss, Scissors()) => Paper().factor + Loss.point
+        case (Draw, Paper()) => Paper().factor + Draw.point
+        case (Win, Rock()) => Paper().factor + Win.point
 
-        case (Loss, Rock()) => Scissors().factor + 0
-        case (Draw, Scissors()) => Scissors().factor + 3
-        case (Win, Paper()) => Scissors().factor + 6
+        case (Loss, Rock()) => Scissors().factor + Loss.point
+        case (Draw, Scissors()) => Scissors().factor + Draw.point
+        case (Win, Paper()) => Scissors().factor + Win.point
       }
     }
 
@@ -88,19 +85,24 @@ object Outcome {
   }
 }
 
-sealed trait Outcome
+sealed trait Outcome {
+  def point: Int
+}
 
-object Draw extends Outcome
+object Draw extends Outcome {
+  override def point: Int = 3
+}
 
-object Loss extends Outcome
+object Loss extends Outcome {
+  override def point: Int = 0
+}
 
-object Win extends Outcome
+object Win extends Outcome {
+  override def point: Int = 6
+}
 
 sealed trait Shape {
-  def symbol(me: Boolean): Char
-
   def factor: Int
-
 }
 
 object Shape {
@@ -115,19 +117,13 @@ object Shape {
 }
 
 case class Rock() extends Shape {
-  override def symbol(me: Boolean): Char = if (me) 'X' else 'A'
-
   override def factor: Int = 1
 }
 
 case class Paper() extends Shape {
-  override def symbol(me: Boolean): Char = if (me) 'Y' else 'B'
-
   override def factor: Int = 2
 }
 
 case class Scissors() extends Shape {
-  override def symbol(me: Boolean): Char = if (me) 'Z' else 'C'
-
   override def factor: Int = 3
 }
