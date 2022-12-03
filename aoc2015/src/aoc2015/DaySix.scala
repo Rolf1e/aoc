@@ -6,6 +6,9 @@ import aoccore.Day
 import scala.collection.mutable
 
 object DaySix extends Day {
+
+  override def number: Int = 6
+
   override def fileName: String = "inputs/daysix.txt"
 
   override def partOne(): Unit = {
@@ -13,17 +16,26 @@ object DaySix extends Day {
     val matrix = Matrix()
     for (line <- lines) yield {
       val action = Action.from(line)
-      matrix.updateArea(action)
+      matrix.updateStateArea(action)
     }
     println(s"You have ${matrix.computeLightsOn} lit lights.")
   }
 
-  override def partTwo(): Unit = ???
+  override def partTwo(): Unit = {
+    val lines = loadFromResource()
+    val matrix = Matrix()
+    for (line <- lines) yield {
+      val action = Action.from(line)
+      matrix.updateBrightnessArea(action)
+    }
+    println(s"You have total brightness of ${matrix.computeTotalBrightness}")
+  }
 
 }
 
-class Matrix private(grid: mutable.Seq[mutable.Seq[Boolean]]) {
-  def updateArea(action: Action): Unit = {
+class Matrix private(grid: mutable.Seq[mutable.Seq[Int]]) {
+
+  def updateStateArea(action: Action): Unit = {
     for {
       x <- action.low.x to action.high.x
       y <- action.low.y to action.high.y
@@ -31,17 +43,34 @@ class Matrix private(grid: mutable.Seq[mutable.Seq[Boolean]]) {
       grid(x)(y) = action.lightAction match {
         case TurnOn => on
         case TurnOff => off
-        case Toggle => !grid(x)(y)
+        case Toggle => if (grid(x)(y) == on) off else on
       }
     }
   }
 
-  def computeLightsOn: Int = grid.map(row => row.count(c => c)).sum
+  def computeLightsOn: Int = grid.map(_.count(_ == on)).sum
+
+  def computeTotalBrightness: Int = grid.map(_.sum).sum
+
+  def updateBrightnessArea(action: Action): Unit = {
+    for {
+      x <- action.low.x to action.high.x
+      y <- action.low.y to action.high.y
+    } {
+      val incr = action.lightAction match {
+        case TurnOn => 1
+        case TurnOff => if (grid(x)(y) == off) off else -1
+        case Toggle => 2
+      }
+      grid(x)(y) += incr
+    }
+  }
+
 }
 
 object Matrix {
-  val off = false
-  val on = true
+  val off = 0
+  val on = 1
 
   def apply(): Matrix = {
     new Matrix(mutable.Seq.fill(1000)(mutable.Seq.fill(1000)(off)))

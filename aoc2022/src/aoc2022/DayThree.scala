@@ -4,6 +4,8 @@ import aoccore.Day
 
 object DayThree extends Day {
 
+  override def number: Int = 3
+
   override def fileName: String = "inputs/daythree.txt"
 
   private val alphabet = ('a' to 'z') concat ('A' to 'Z')

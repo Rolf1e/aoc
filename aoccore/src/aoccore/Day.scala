@@ -1,6 +1,7 @@
 package aoccore
 
 trait Day {
+   def number: Int
 
   def fileName: String
 
@@ -20,8 +21,8 @@ trait Day {
 object Day {
 
   def run(days: Seq[Day]): Unit = {
-    for ((day, i) <- days.zipWithIndex) {
-      println(s"=== Day: ${i + 1} === ")
+    for (day <- days) {
+      println(s"=== Day: ${day.number} === ")
       println("=> Part 1")
       day.partOne()
       println("=> Part 2")

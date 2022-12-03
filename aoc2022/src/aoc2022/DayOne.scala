@@ -4,6 +4,8 @@ import aoccore.Day
 
 object DayOne extends Day {
 
+  override def number: Int = 1
+
   override def fileName = "inputs/dayone.txt"
 
   def partOne(): Unit = {

@@ -3,6 +3,9 @@ package aoc2022
 import aoccore.Day
 
 object DayTwo extends Day {
+
+  override def number: Int = 2
+
   override def fileName: String = "inputs/daytwo.txt"
 
   override def partOne(): Unit = {
