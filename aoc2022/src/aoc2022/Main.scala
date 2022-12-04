@@ -3,7 +3,7 @@ package aoc2022
 import aoccore.Day
 
 object Main extends App {
-  private val days = Seq[Day](DayOne, DayTwo, DayThree)
+  private val days = Seq[Day](DayOne, DayTwo, DayThree, DayFour)
   Day.run(days)
 }
 
