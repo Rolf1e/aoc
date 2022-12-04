@@ -34,10 +34,7 @@ case class Range(low: Int, high: Int) {
   }
 
   def overlapAll(r: Range): Boolean = {
-    (low <= r.low && r.low <= high) ||
-      (low <= r.high && r.high <= high) ||
-      (low >= r.low && high <= r.high) ||
-      (low <= r.low && high >= r.high)
+    high >= r.low && r.high >= low // check is they are disjoint
   }
 }
 
