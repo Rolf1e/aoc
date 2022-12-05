@@ -25,14 +25,11 @@ object DayFive extends Day {
       }
     }
 
-    val topRow = for ((_, column) <- drawing) yield {
-      column.pop()
-    }
+    val topRow = findTopRow(drawing)
     println(s"Top row is: ${topRow.mkString}")
   }
 
   private def parseInput(input: Seq[String]): (Drawing, Seq[Instruction]) = {
-    var stacksForTheFuture = mutable.Seq[String]()
     var instructions = mutable.Seq[Instruction]()
     var processInstructions = false
 
@@ -41,35 +38,26 @@ object DayFive extends Day {
       if (processInstructions) {
         instructions = instructions :+ Instruction.from(line)
       } else if (line.contains('[')) {
-        stacksForTheFuture = stacksForTheFuture :+ line
+        for {(letter, index) <- parseMapRow(line)} {
+          drawing.updateWith(index) {
+            case Some(value) => Some(value :+ letter)
+            case None => Some(mutable.Stack(letter))
+          }
+        }
       } else if (line.isEmpty) {
         processInstructions = true
-      } else { // stack numbers
-        line.toCharArray.view
-          .filter(!_.isWhitespace)
-          .foreach(c => drawing.put(c.toString.toInt, mutable.Stack[Char]()))
-      }
-    }
-
-    for {
-      stack <- stacksForTheFuture.reverse
-      (letter, index) <- parseMapRow(stack)
-    } {
-      drawing.updateWith(index) {
-        case Some(value) => Some(letter +: value)
-        case None => Some(mutable.Stack(letter))
       }
     }
 
     (drawing, instructions.toSeq)
   }
 
-  private def parseMapRow(line: String): Iterator[(Char, Int)] = {
+  private def parseMapRow(line: String): Seq[(Char, Int)] = {
     line.grouped(4)
       .zipWithIndex
       .map { case (str, i) => (str(1), i + 1) }
       .filter { case (str, _) => str != ' ' }
-
+      .toSeq
   }
 
   override def partTwo(): Unit = {
@@ -91,10 +79,14 @@ object DayFive extends Day {
       }
     }
 
-    val topRow = for ((_, column) <- drawing) yield {
-      column.pop()
-    }
+    val topRow = findTopRow(drawing)
     println(s"Top row is: ${topRow.mkString}")
+  }
+
+  private def findTopRow(drawing: Drawing): Seq[Char] = {
+    drawing.view
+      .map { case (_, column) => column.pop() }
+      .toSeq
   }
 }
 
