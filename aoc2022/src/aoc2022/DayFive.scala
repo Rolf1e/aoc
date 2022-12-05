@@ -1,12 +1,12 @@
 package aoc2022
 
+import aoc2022.DayFive.Drawing
 import aoccore.Day
 
 import scala.collection.mutable
 
 object DayFive extends Day {
   type Drawing = mutable.Map[Int, mutable.Stack[Char]]
-  ()
 
   override def number: Int = 5
 
@@ -14,42 +14,18 @@ object DayFive extends Day {
 
   override def partOne(): Unit = {
     val lines = loadFromResource()
-    val (drawing, instructions) = parseInput(lines)
-    for {
-      instruction <- instructions
-      _ <- 0 until instruction.repeat
-    } {
-      (drawing.get(instruction.from), drawing.get(instruction.to)) match {
-        case (Some(from), Some(to)) => to.push(from.pop())
-        case (Some(from), None) => drawing.put(instruction.to, mutable.Stack(from.pop()))
+    val drawing = mutable.Map[Int, mutable.Stack[Char]]()
+    for (line <- lines) {
+      if (line.contains('[')) {
+        updateDrawing(drawing, line)
+      } else if (line.startsWith("move")) {
+        val instruction = Instruction.from(line)
+        instruction.stackOneByOne(drawing)
       }
     }
 
     val topRow = findTopRow(drawing)
     println(s"Top row is: ${topRow.mkString}")
-  }
-
-  private def parseInput(input: Seq[String]): (Drawing, Seq[Instruction]) = {
-    var instructions = mutable.Seq[Instruction]()
-    var processInstructions = false
-
-    val drawing = mutable.Map[Int, mutable.Stack[Char]]()
-    for (line <- input) {
-      if (processInstructions) {
-        instructions = instructions :+ Instruction.from(line)
-      } else if (line.contains('[')) {
-        for {(letter, index) <- parseMapRow(line)} {
-          drawing.updateWith(index) {
-            case Some(value) => Some(value :+ letter)
-            case None => Some(mutable.Stack(letter))
-          }
-        }
-      } else if (line.isEmpty) {
-        processInstructions = true
-      }
-    }
-
-    (drawing, instructions.toSeq)
   }
 
   private def parseMapRow(line: String): Seq[(Char, Int)] = {
@@ -62,20 +38,13 @@ object DayFive extends Day {
 
   override def partTwo(): Unit = {
     val lines = loadFromResource()
-    val (drawing, instructions) = parseInput(lines)
-
-    for (instruction <- instructions) {
-      val toBeMoved = mutable.Stack[Char]()
-
-      for (_ <- 0 until instruction.repeat) {
-        drawing.get(instruction.from) match {
-          case Some(value) => toBeMoved.push(value.pop())
-        }
-      }
-
-      drawing.get(instruction.to) match {
-        case Some(value) => value.pushAll(toBeMoved)
-        case None => drawing.put(instruction.to, toBeMoved)
+    val drawing = mutable.Map[Int, mutable.Stack[Char]]()
+    for (line <- lines) {
+      if (line.contains('[')) {
+        updateDrawing(drawing, line)
+      } else if (line.startsWith("move")) {
+        val instruction = Instruction.from(line)
+        instruction.stackByRow(drawing)
       }
     }
 
@@ -88,9 +57,40 @@ object DayFive extends Day {
       .map { case (_, column) => column.pop() }
       .toSeq
   }
+
+  private def updateDrawing(drawing: Drawing, line: String): Unit = {
+    for ((letter, index) <- parseMapRow(line)) {
+      drawing.updateWith(index) {
+        case Some(value) => Some(value :+ letter)
+        case None => Some(mutable.Stack(letter))
+      }
+    }
+  }
 }
 
-case class Instruction(from: Int, to: Int, repeat: Int)
+case class Instruction(from: Int, to: Int, repeat: Int) {
+  def stackOneByOne(drawing: Drawing): Unit = {
+    for (_ <- 0 until repeat) {
+      (drawing.get(from), drawing.get(to)) match {
+        case (Some(from), Some(to)) => to.push(from.pop())
+        case (Some(from), None) => drawing.put(to, mutable.Stack(from.pop()))
+      }
+    }
+  }
+
+  def stackByRow(drawing: Drawing): Unit = {
+    val toBeMoved = mutable.Stack[Char]()
+    for (_ <- 0 until repeat) {
+      drawing.get(from) match {
+        case Some(value) => toBeMoved.push(value.pop())
+      }
+    }
+    drawing.get(to) match {
+      case Some(value) => value.pushAll(toBeMoved)
+      case None => drawing.put(to, toBeMoved)
+    }
+  }
+}
 
 object Instruction {
   def from(s: String): Instruction = s match {
