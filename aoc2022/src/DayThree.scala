@@ -1,5 +1,3 @@
-package aoc2022
-
 import aoccore.Day
 
 object DayThree extends Day {

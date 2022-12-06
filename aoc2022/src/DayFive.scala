@@ -1,6 +1,4 @@
-package aoc2022
-
-import aoc2022.DayFive.Drawing
+import DayFive.Drawing
 import aoccore.Day
 
 import scala.collection.mutable
