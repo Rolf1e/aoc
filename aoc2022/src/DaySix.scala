@@ -12,15 +12,10 @@ object DaySix extends Day {
   }
 
   private def findMarker(threshold: Int, s: String): Option[Int] = {
-    for ((_, i) <- s.toCharArray.zipWithIndex) {
-      if (i > threshold - 1) {
-        val sub = s.substring(i - threshold, i).toSet
-        if (sub.size == threshold) {
-          return Some(i)
-        }
-      }
-    }
-    None
+    s.toCharArray.sliding(threshold)
+      .zipWithIndex
+      .find { case (window, _) => window.toSet.size == threshold }
+      .map(_._2 + threshold)
   }
 
   override def partTwo(): Unit = {
