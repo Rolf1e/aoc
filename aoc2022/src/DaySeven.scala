@@ -8,10 +8,10 @@ object DaySeven extends Day {
   override def fileName: String = "inputs/dayseven.txt"
 
   private val cwd = mutable.Stack("/")
+  private val fileSystem = FileSystem()
 
   override def partOne(): Unit = {
     val lines = loadFromResource()
-    val fileSystem = FileSystem()
     for (line <- lines) {
 
       line match {
@@ -39,7 +39,18 @@ object DaySeven extends Day {
   private def pwd: String = cwd.reverse.mkString("/")
 
 
-  override def partTwo(): Unit = ???
+  override def partTwo(): Unit = {
+    val diskTotalSpace = 70000000
+    val updateRequireSpace = 30000000
+
+    val freeSpace = diskTotalSpace - fileSystem.occupiedSpace
+    val toSmall = fileSystem.findSubdirWithAtMost(updateRequireSpace - freeSpace)
+    val toBeDelete = fileSystem.findAllSubdir()
+      .filter(node => !toSmall.contains(node))
+      .minBy(_.size)
+
+    println(s"You should delete $toBeDelete of ${toBeDelete.size}")
+  }
 
 }
 
@@ -59,14 +70,27 @@ case class File(name: String, size: Int) extends Node {
 
 case class Dir(name: String, var children: Map[String, Node] = Map.empty) extends Node {
   override def size: Int = children
+    .view
     .map { case (_, node) => node.size }
     .sum
 }
 
 class FileSystem private(root: Node) {
+  def occupiedSpace: Int = root.size
 
-  def findSubdirWithAtMost(sizeThreshold: Int, node: Node = root): Seq[Node] = {
-    node.children
+  def findAllSubdir(root: Node = root): Seq[Node] = {
+    root.children
+      .view
+      .flatMap { case (_, node) => node match {
+        case File(_, _) => Seq[Node]()
+        case Dir(_, _) => findAllSubdir(node) ++ Seq(node)
+      }
+      }
+      .toSeq
+  }
+
+  def findSubdirWithAtMost(sizeThreshold: Int, root: Node = root): Seq[Node] = {
+    root.children
       .view
       .flatMap { case (_, node) =>
         findSubdirWithAtMost(sizeThreshold, node) ++ (if (node.size < sizeThreshold) Seq(node) else Seq())
@@ -93,7 +117,6 @@ class FileSystem private(root: Node) {
           newDir
         }
       }
-
     }
   }
 
@@ -108,7 +131,6 @@ class FileSystem private(root: Node) {
       }
     }
     current.children = current.children + (file.name -> File(file.name, file.size))
-
   }
 
 }
