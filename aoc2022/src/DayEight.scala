@@ -73,7 +73,6 @@ object DayEight extends Day {
       val down = exploreRow(i, j, South(), tree)
       val left = exploreRow(i, j, West(), tree)
       val right = exploreRow(i, j, East(), tree)
-      println(s"($i,$j) ${grid(i)(j)} => ${up * down * left * right} u$up * l$left * r$right * d$down")
       highestScore = highestScore.max(up * down * left * right)
     }
 
@@ -92,28 +91,23 @@ object DayEight extends Day {
     }
   }
 
-  sealed trait Direction {
+  private sealed trait Direction {
     def next(x: Int, y: Int): Option[(Int, Int)]
   }
 
-  case class North() extends Direction {
+  private case class North() extends Direction {
     override def next(x: Int, y: Int): Option[(Int, Int)] = if (x >= 1) Some((x - 1, y)) else None
   }
 
-  case class South() extends Direction {
+  private case class South() extends Direction {
     override def next(x: Int, y: Int): Option[(Int, Int)] = if (x <= grid.size - 2) Some((x + 1, y)) else None
   }
 
-  case class West() extends Direction {
+  private case class West() extends Direction {
     override def next(x: Int, y: Int): Option[(Int, Int)] = if (y >= 1) Some((x, y - 1)) else None
   }
 
-  case class East() extends Direction {
+  private case class East() extends Direction {
     override def next(x: Int, y: Int): Option[(Int, Int)] = if (y <= grid.size - 2) Some((x, y + 1)) else None
   }
-
-
 }
-
-
-

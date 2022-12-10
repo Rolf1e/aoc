@@ -52,91 +52,91 @@ object DaySeven extends Day {
     println(s"You should delete $toBeDelete of ${toBeDelete.size}")
   }
 
-}
+  private sealed trait Node {
 
-sealed trait Node {
+    def name: String
 
-  def name: String
+    def size: Int
 
-  def size: Int
+    var children: Map[String, Node]
+  }
 
-  var children: Map[String, Node]
-}
-
-case class File(name: String, size: Int) extends Node {
-  override var children: Map[String, Node] = Map.empty
-}
+  private case class File(name: String, size: Int) extends Node {
+    override var children: Map[String, Node] = Map.empty
+  }
 
 
-case class Dir(name: String, var children: Map[String, Node] = Map.empty) extends Node {
-  override def size: Int = children
-    .view
-    .map { case (_, node) => node.size }
-    .sum
-}
-
-class FileSystem private(root: Node) {
-  def occupiedSpace: Int = root.size
-
-  def findAllSubdir(root: Node = root): Seq[Node] = {
-    root.children
+  private case class Dir(name: String, var children: Map[String, Node] = Map.empty) extends Node {
+    override def size: Int = children
       .view
-      .flatMap { case (_, node) => node match {
-        case File(_, _) => Seq[Node]()
-        case Dir(_, _) => findAllSubdir(node) ++ Seq(node)
-      }
-      }
-      .toSeq
+      .map { case (_, node) => node.size }
+      .sum
   }
 
-  def findSubdirWithAtMost(sizeThreshold: Int, root: Node = root): Seq[Node] = {
-    root.children
-      .view
-      .flatMap { case (_, node) =>
-        findSubdirWithAtMost(sizeThreshold, node) ++ (if (node.size < sizeThreshold) Seq(node) else Seq())
-      }
-      .filter(node => node match {
-        case File(_, _) => false
-        case Dir(_, _) => true
-      })
-      .toSeq
-  }
+  private class FileSystem private(root: Node) {
+    def occupiedSpace: Int = root.size
 
-  def ls(): Unit = {
-    println(root)
-  }
-
-  def mkdir(fullPath: String): Unit = {
-    var current = root
-    for (dir <- fullPath.split("/") if dir.nonEmpty) {
-      current = current.children.get(dir) match {
-        case Some(v) => v
-        case None => {
-          val newDir = Dir(dir)
-          current.children = current.children + (dir -> newDir)
-          newDir
+    def findAllSubdir(root: Node = root): Seq[Node] = {
+      root.children
+        .view
+        .flatMap { case (_, node) => node match {
+          case File(_, _) => Seq[Node]()
+          case Dir(_, _) => findAllSubdir(node) ++ Seq(node)
         }
-      }
+        }
+        .toSeq
     }
-  }
 
-  def touch(fullPath: String, file: File): Unit = {
-    var current = root
-    if (fullPath != "/") {
+    def findSubdirWithAtMost(sizeThreshold: Int, root: Node = root): Seq[Node] = {
+      root.children
+        .view
+        .flatMap { case (_, node) =>
+          findSubdirWithAtMost(sizeThreshold, node) ++ (if (node.size < sizeThreshold) Seq(node) else Seq())
+        }
+        .filter(node => node match {
+          case File(_, _) => false
+          case Dir(_, _) => true
+        })
+        .toSeq
+    }
+
+    def ls(): Unit = {
+      println(root)
+    }
+
+    def mkdir(fullPath: String): Unit = {
+      var current = root
       for (dir <- fullPath.split("/") if dir.nonEmpty) {
-        current.children.get(dir) match {
-          case Some(value) => current = value
-          case None => throw new IllegalArgumentException(s"Can not touch $fullPath $file")
+        current = current.children.get(dir) match {
+          case Some(v) => v
+          case None => {
+            val newDir = Dir(dir)
+            current.children = current.children + (dir -> newDir)
+            newDir
+          }
         }
       }
     }
-    current.children = current.children + (file.name -> File(file.name, file.size))
+
+    def touch(fullPath: String, file: File): Unit = {
+      var current = root
+      if (fullPath != "/") {
+        for (dir <- fullPath.split("/") if dir.nonEmpty) {
+          current.children.get(dir) match {
+            case Some(value) => current = value
+            case None => throw new IllegalArgumentException(s"Can not touch $fullPath $file")
+          }
+        }
+      }
+      current.children = current.children + (file.name -> File(file.name, file.size))
+    }
+
   }
 
-}
-
-object FileSystem {
-  def apply(): FileSystem = {
-    new FileSystem(Dir("/"))
+  private object FileSystem {
+    def apply(): FileSystem = {
+      new FileSystem(Dir("/"))
+    }
   }
+
 }
