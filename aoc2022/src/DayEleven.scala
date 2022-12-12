@@ -1,11 +1,11 @@
 import aoccore.Day
 
-import scala.collection.immutable.TreeMap
 import scala.collection.{View, mutable}
 
 object DayEleven extends Day {
   type MonkeyId = Int
-  type WorryLevel = BigInt
+  type WorryLevel = Long
+  type BusinessTime = Long
   type Operation = WorryLevel => WorryLevel
   type ThrowTo = WorryLevel => MonkeyId
 
@@ -18,11 +18,11 @@ object DayEleven extends Day {
       .view
       .grouped(7)
       .map(Monkey(_))
-      .to(TreeMap)
+      .toSeq
 
     for {
       _ <- 1 to 20
-      monkey <- monkeys.values
+      monkey <- monkeys
       move <- monkey.inspects((worry: WorryLevel) => worry / 3)
     } {
       executeMove(monkeys, move)
@@ -32,17 +32,15 @@ object DayEleven extends Day {
     println(s"Business is ${first.business * second.business}")
   }
 
-  private def business(monkeys: Map[Int, Monkey]): (Monkey, Monkey) = {
+  private def business(monkeys: Seq[Monkey]): (Monkey, Monkey) = {
     val Seq(first, second) = monkeys
-      .values
-      .toSeq
       .sortBy(_.business)
       .reverse
       .take(2)
     (first, second)
   }
 
-  private def executeMove(monkeys: Map[Int, Monkey], move: Move): Unit = {
+  private def executeMove(monkeys: Seq[Monkey], move: Move): Unit = {
     monkeys(move.from).clearItems()
     monkeys(move.to) add move.worry
   }
@@ -52,12 +50,12 @@ object DayEleven extends Day {
       .view
       .grouped(7)
       .map(Monkey(_))
-      .to(TreeMap)
+      .toSeq
 
-    val productModulos = monkeys.values.map(_.divisibleBy).product
+    val productModulos = monkeys.map(_.divisibleBy).product
     for {
       _ <- 1 to 10000
-      monkey <- monkeys.values
+      monkey <- monkeys
       move <- monkey.inspects((worry: WorryLevel) => worry % productModulos)
     } {
       executeMove(monkeys, move)
@@ -65,7 +63,6 @@ object DayEleven extends Day {
 
     val (first, second) = business(monkeys)
     println(s"Business is ${first.business * second.business}")
-    println(monkeys.mkString("\n"))
   }
 
   case class Move(from: MonkeyId, to: MonkeyId, worry: WorryLevel)
@@ -76,12 +73,12 @@ object DayEleven extends Day {
                              operation: Operation,
                              nextMonkeyId: ThrowTo,
                              divisibleBy: Int,
-                             var inspectsItems: BigInt = 0
+                             var inspectsItems: BusinessTime = 0
                            ) {
 
     override def toString: String = s"business $business items ${items.mkString("[", ",", "]")}"
 
-    def business: BigInt = inspectsItems
+    def business: BusinessTime = inspectsItems
 
     def clearItems(): Unit = items.clear()
 
@@ -102,7 +99,7 @@ object DayEleven extends Day {
   }
 
   object Monkey {
-    def apply(instructions: View[String]): (Int, Monkey) = {
+    def apply(instructions: View[String]): Monkey = {
       var id = -1
       var items = mutable.Stack.empty[WorryLevel]
       var operation: Operation = (i: WorryLevel) => i
@@ -112,7 +109,7 @@ object DayEleven extends Day {
       for (instruction <- instructions) {
         instruction match {
           case s"Monkey $rawId:" => id = rawId.toInt
-          case s"  Starting items: $rawItems" => items = rawItems.split(", ").map(BigInt(_)).to(mutable.Stack)
+          case s"  Starting items: $rawItems" => items = rawItems.split(", ").map(_.toLong).to(mutable.Stack)
           case s"  Operation: new = old * old" => operation = (old: WorryLevel) => old * old
           case s"  Operation: new = old * $factor" => operation = (old: WorryLevel) => old * factor.toLong
           case s"  Operation: new = old + $addition" => operation = (old: WorryLevel) => old + addition.toLong
@@ -122,7 +119,7 @@ object DayEleven extends Day {
           case "" => {}
         }
       }
-      (id, Monkey(id, items, operation, (worry: WorryLevel) => if (worry % divisibleBy == 0) success else failure, divisibleBy))
+      Monkey(id, items, operation, (worry: WorryLevel) => if (worry % divisibleBy == 0) success else failure, divisibleBy)
     }
   }
 }
