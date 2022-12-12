@@ -5,34 +5,34 @@ import scala.collection.{View, mutable}
 
 object DayEleven extends Day {
   type MonkeyId = Int
-  type WorryLevel = Long
+  type WorryLevel = BigInt
   type Operation = WorryLevel => WorryLevel
   type ThrowTo = WorryLevel => MonkeyId
 
   override def number: Int = 11
 
-  override def fileName: String = "inputs/ex_dayeleven.txt"
-
-  private val monkeys = loadFromResource()
-    .view
-    .grouped(7)
-    .map(Monkey(_))
-    .to(TreeMap)
+  override def fileName: String = "inputs/dayeleven.txt"
 
   override def partOne(): Unit = {
+    val monkeys = loadFromResource()
+      .view
+      .grouped(7)
+      .map(Monkey(_))
+      .to(TreeMap)
+
     for {
       _ <- 1 to 20
       monkey <- monkeys.values
-      move <- monkey.inspects()
+      move <- monkey.inspects((worry: WorryLevel) => worry / 3)
     } {
-      executeMove(move)
+      executeMove(monkeys, move)
     }
 
-    val (first, second) = business()
+    val (first, second) = business(monkeys)
     println(s"Business is ${first.business * second.business}")
   }
 
-  private def business(): (Monkey, Monkey) = {
+  private def business(monkeys: Map[Int, Monkey]): (Monkey, Monkey) = {
     val Seq(first, second) = monkeys
       .values
       .toSeq
@@ -42,22 +42,30 @@ object DayEleven extends Day {
     (first, second)
   }
 
-  private def executeMove(move: Move): Unit = {
+  private def executeMove(monkeys: Map[Int, Monkey], move: Move): Unit = {
     monkeys(move.from).clearItems()
     monkeys(move.to) add move.worry
   }
 
   override def partTwo(): Unit = {
+    val monkeys = loadFromResource()
+      .view
+      .grouped(7)
+      .map(Monkey(_))
+      .to(TreeMap)
+
+    val productModulos = monkeys.values.map(_.divisibleBy).product
     for {
       _ <- 1 to 10000
       monkey <- monkeys.values
-      move <- monkey.inspects2()
+      move <- monkey.inspects((worry: WorryLevel) => worry % productModulos)
     } {
-      executeMove(move)
+      executeMove(monkeys, move)
     }
 
-    val (first, second) = business()
+    val (first, second) = business(monkeys)
     println(s"Business is ${first.business * second.business}")
+    println(monkeys.mkString("\n"))
   }
 
   case class Move(from: MonkeyId, to: MonkeyId, worry: WorryLevel)
@@ -68,32 +76,21 @@ object DayEleven extends Day {
                              operation: Operation,
                              nextMonkeyId: ThrowTo,
                              divisibleBy: Int,
-                             var inspectsItems: Int = 0
+                             var inspectsItems: BigInt = 0
                            ) {
 
     override def toString: String = s"business $business items ${items.mkString("[", ",", "]")}"
 
-    def business: Int = inspectsItems
+    def business: BigInt = inspectsItems
 
     def clearItems(): Unit = items.clear()
 
-    def inspects(): Seq[Move] = {
+    def inspects(manageWorry: Operation): Seq[Move] = {
       for {
         worry <- items.toSeq
       } yield {
         inspectsItems += 1
-        val newWorry = operation(worry) / 3
-        Move(from = id, to = nextMonkeyId(newWorry), newWorry)
-      }
-    }
-
-    // do not work :(
-    def inspects2(): Seq[Move] = {
-      for {
-        worry <- items.toSeq
-      } yield {
-        inspectsItems += 1
-        val newWorry = operation(worry) % divisibleBy
+        val newWorry = manageWorry(operation(worry))
         Move(from = id, to = nextMonkeyId(newWorry), newWorry)
       }
     }
@@ -115,7 +112,7 @@ object DayEleven extends Day {
       for (instruction <- instructions) {
         instruction match {
           case s"Monkey $rawId:" => id = rawId.toInt
-          case s"  Starting items: $rawItems" => items = rawItems.split(", ").map(_.toLong).to(mutable.Stack)
+          case s"  Starting items: $rawItems" => items = rawItems.split(", ").map(BigInt(_)).to(mutable.Stack)
           case s"  Operation: new = old * old" => operation = (old: WorryLevel) => old * old
           case s"  Operation: new = old * $factor" => operation = (old: WorryLevel) => old * factor.toLong
           case s"  Operation: new = old + $addition" => operation = (old: WorryLevel) => old + addition.toLong
