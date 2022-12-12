@@ -74,59 +74,60 @@ object DayTwo extends Day {
 
   }
 
-}
+  object Outcome {
 
-object Outcome {
-
-  def from(char: Char): Outcome = {
-    char match {
-      case 'X' => Loss
-      case 'Y' => Draw
-      case 'Z' => Win
-      case _ => throw new IllegalArgumentException(char.toString)
+    def from(char: Char): Outcome = {
+      char match {
+        case 'X' => Loss
+        case 'Y' => Draw
+        case 'Z' => Win
+        case _ => throw new IllegalArgumentException(char.toString)
+      }
     }
   }
-}
 
-sealed trait Outcome {
-  def point: Int
-}
+  sealed trait Outcome {
+    def point: Int
+  }
 
-object Draw extends Outcome {
-  override def point: Int = 3
-}
+  object Draw extends Outcome {
+    override def point: Int = 3
+  }
 
-object Loss extends Outcome {
-  override def point: Int = 0
-}
+  object Loss extends Outcome {
+    override def point: Int = 0
+  }
 
-object Win extends Outcome {
-  override def point: Int = 6
-}
+  object Win extends Outcome {
+    override def point: Int = 6
+  }
 
-sealed trait Shape {
-  def factor: Int
-}
+  sealed trait Shape {
+    def factor: Int
+  }
 
-object Shape {
-  def from(char: Char): Shape = {
-    char match {
-      case 'X' | 'A' => Rock()
-      case 'Y' | 'B' => Paper()
-      case 'Z' | 'C' => Scissors()
-      case _ => throw new IllegalArgumentException(char.toString)
+  object Shape {
+    def from(char: Char): Shape = {
+      char match {
+        case 'X' | 'A' => Rock()
+        case 'Y' | 'B' => Paper()
+        case 'Z' | 'C' => Scissors()
+        case _ => throw new IllegalArgumentException(char.toString)
+      }
     }
   }
+
+  case class Rock() extends Shape {
+    override def factor: Int = 1
+  }
+
+  case class Paper() extends Shape {
+    override def factor: Int = 2
+  }
+
+  case class Scissors() extends Shape {
+    override def factor: Int = 3
+  }
+
 }
 
-case class Rock() extends Shape {
-  override def factor: Int = 1
-}
-
-case class Paper() extends Shape {
-  override def factor: Int = 2
-}
-
-case class Scissors() extends Shape {
-  override def factor: Int = 3
-}

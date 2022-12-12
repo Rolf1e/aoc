@@ -64,34 +64,35 @@ object DayFive extends Day {
       }
     }
   }
-}
 
-case class Instruction(from: Int, to: Int, repeat: Int) {
-  def stackOneByOne(drawing: Drawing): Unit = {
-    for (_ <- 0 until repeat) {
-      (drawing.get(from), drawing.get(to)) match {
-        case (Some(from), Some(to)) => to.push(from.pop())
-        case (Some(from), None) => drawing.put(to, mutable.Stack(from.pop()))
+  case class Instruction(from: Int, to: Int, repeat: Int) {
+    def stackOneByOne(drawing: Drawing): Unit = {
+      for (_ <- 0 until repeat) {
+        (drawing.get(from), drawing.get(to)) match {
+          case (Some(from), Some(to)) => to.push(from.pop())
+          case (Some(from), None) => drawing.put(to, mutable.Stack(from.pop()))
+        }
+      }
+    }
+
+    def stackByRow(drawing: Drawing): Unit = {
+      val toBeMoved = mutable.Stack[Char]()
+      for (_ <- 0 until repeat) {
+        drawing.get(from) match {
+          case Some(value) => toBeMoved.push(value.pop())
+        }
+      }
+      drawing.get(to) match {
+        case Some(value) => value.pushAll(toBeMoved)
+        case None => drawing.put(to, toBeMoved)
       }
     }
   }
 
-  def stackByRow(drawing: Drawing): Unit = {
-    val toBeMoved = mutable.Stack[Char]()
-    for (_ <- 0 until repeat) {
-      drawing.get(from) match {
-        case Some(value) => toBeMoved.push(value.pop())
-      }
-    }
-    drawing.get(to) match {
-      case Some(value) => value.pushAll(toBeMoved)
-      case None => drawing.put(to, toBeMoved)
+  object Instruction {
+    def from(s: String): Instruction = s match {
+      case s"move $repeat from $from to $to" => Instruction(from.toInt, to.toInt, repeat.toInt)
     }
   }
 }
 
-object Instruction {
-  def from(s: String): Instruction = s match {
-    case s"move $repeat from $from to $to" => Instruction(from.toInt, to.toInt, repeat.toInt)
-  }
-}

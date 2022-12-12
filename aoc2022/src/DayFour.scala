@@ -22,25 +22,26 @@ object DayFour extends Day {
     })
     println(s"$count assignments overlap at all")
   }
-}
 
-case class Assignments(left: Range, right: Range)
+  case class Assignments(left: Range, right: Range)
 
-case class Range(low: Int, high: Int) {
-  def fullyContains(r: Range): Boolean = {
-    (low <= r.low && high >= r.high) || (r.low <= low && r.high >= high)
-  }
+  case class Range(low: Int, high: Int) {
+    def fullyContains(r: Range): Boolean = {
+      (low <= r.low && high >= r.high) || (r.low <= low && r.high >= high)
+    }
 
-  def overlapAll(r: Range): Boolean = {
-    high >= r.low && r.high >= low // check is they are disjoint
-  }
-}
-
-object Assignments {
-  def from(s: String): Assignments = {
-    s match {
-      case s"$lowL-$highL,$lowR-$highR" => Assignments(Range(lowL.toInt, highL.toInt), Range(lowR.toInt, highR.toInt))
+    def overlapAll(r: Range): Boolean = {
+      high >= r.low && r.high >= low // check is they are disjoint
     }
   }
+
+  object Assignments {
+    def from(s: String): Assignments = {
+      s match {
+        case s"$lowL-$highL,$lowR-$highR" => Assignments(Range(lowL.toInt, highL.toInt), Range(lowR.toInt, highR.toInt))
+      }
+    }
+  }
+
 }
 

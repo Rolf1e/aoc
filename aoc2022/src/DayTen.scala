@@ -51,9 +51,8 @@ object DayTen extends Day {
           println()
         }
       }
+      println()
     }
-
-    printDraw()
 
     for (line <- lines) {
       crt push charToDraw()
