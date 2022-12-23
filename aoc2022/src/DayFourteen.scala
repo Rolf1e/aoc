@@ -1,4 +1,4 @@
-import DayFourteen.Grid.{abyss, sand, sandStartCoo, void}
+import DayFourteen.Grid.{floor, sand, sandStartCoo, void}
 import aoccore.Day
 
 object DayFourteen extends Day {
@@ -20,40 +20,61 @@ object DayFourteen extends Day {
       while (!shouldStop && step < 1000) {
         grid.popSand()
         while (!shouldStop && !grid.isResting) {
-          shouldStop = grid.sandFlows()
+          shouldStop = grid.sandFlows(grid.untilPartOne)
         }
-//        println(s"STEP $step $shouldStop")
-//        show()
         step += 1
       }
     }
 
     pourSand()
-    show()
-    println(grid.getRestedSand)
+    val restedSand = grid.paths.map(_.count(_ == sand)).sum
+//    show()
+    println(s"You can pour ${restedSand - 1} grain of sand")
   }
 
-  override def partTwo(): Unit = {}
+  override def partTwo(): Unit = {
+    val grid = Grid.from(loadFromResource(), 1000, 200)
+
+    def show(): Unit = {
+      display(grid.paths, Coo(0, 0), Coo(1000, 200))
+    }
+
+    def pourSand(): Unit = {
+      var step = 1
+      var shouldStop = false
+      while (!shouldStop) {
+        grid.popSand()
+        while (!shouldStop && !grid.isRestingTwo) {
+          shouldStop = grid.sandFlows(_ => false)
+        }
+
+        shouldStop = if (grid.paths(0)(500) == sand) true else shouldStop
+        step += 1
+      }
+    }
+
+    pourSand()
+//    show()
+    val restedSand = grid.paths.map(_.count(_ == sand)).sum
+    println(s" You can pour ${restedSand} grain of sand")
+  }
 
   case class Grid(paths: Array[Array[Char]]) {
-    private var restedSand: Int = 0
-
-    def getRestedSand: Int = restedSand - 1
-
     private var movingSand: Coo = sandStartCoo
 
     def popSand(): Unit = {
       movingSand = sandStartCoo
       paths(sandStartCoo.y)(sandStartCoo.x) = sand
-      restedSand += 1
     }
+
+    def untilPartOne(coo: Coo): Boolean = paths(coo.y)(coo.x) == floor
 
     /**
      * @return whether we should stop
      */
-    def sandFlows(): Boolean = {
+    def sandFlows(until: Coo => Boolean): Boolean = {
       for (destination <- nextSandDestinations(movingSand)) {
-        if (paths(destination.y)(destination.x) == abyss) {
+        if (until.apply(destination)) {
           return true
         }
         if (paths(destination.y)(destination.x) == void) {
@@ -68,7 +89,13 @@ object DayFourteen extends Day {
 
     def isResting: Boolean = {
       !nextSandDestinations(movingSand)
-        .exists(destination => paths(destination.y)(destination.x) == void || paths(destination.y)(destination.x) == abyss)
+        .exists(destination => paths(destination.y)(destination.x) == void || paths(destination.y)(destination.x) == floor)
+
+    }
+
+    def isRestingTwo: Boolean = {
+      !nextSandDestinations(movingSand)
+        .exists(destination => paths(destination.y)(destination.x) == void)
     }
 
     private def nextSandDestinations(coo: Coo): Seq[Coo] = {
@@ -91,15 +118,16 @@ object DayFourteen extends Day {
     val void = '.'
     val sandStart = '+'
     val sand = 'o'
-    val abyss = 'x'
+    val floor = 'x'
     val sandStartCoo = Coo(500, 0)
 
     def from(lines: Seq[String], xMax: Int, yMax: Int): Grid = {
       val paths = Array.fill(yMax, xMax)(void)
       paths(sandStartCoo.y)(sandStartCoo.x) = sandStart // sand source (500, 0)
-      for (x <- 0 until xMax) paths(yMax - 1)(x) = abyss
+      var maxY = 0
 
       def drawRock(from: Coo, to: Coo): Unit = {
+        maxY = maxY.max(from.y.max(to.y))
         if (from.x == to.x) for (y <- from.y.min(to.y) to from.y.max(to.y)) {
           paths(y)(from.x) = rock
         } else if (from.y == to.y) for (x <- from.x.min(to.x) to from.x.max(to.x)) {
@@ -116,6 +144,9 @@ object DayFourteen extends Day {
       } {
         drawRock(toCoo(from), toCoo(to))
       }
+
+      val floorY = (yMax - 1).min(maxY + 2)
+      for (x <- 0 until xMax) paths(floorY)(x) = floor
 
       Grid(paths)
     }
