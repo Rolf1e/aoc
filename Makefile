@@ -1,2 +1,2 @@
 intellij:
-	./mill mill.scalalib.GenIdea/ide
+	./mill mill.scalalib.GenIdea/idea
