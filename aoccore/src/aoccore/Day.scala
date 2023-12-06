@@ -1,7 +1,7 @@
 package aoccore
 
 trait Day {
-   def number: Int
+  def number: Int
 
   def fileName: String
 
@@ -19,6 +19,14 @@ trait Day {
 }
 
 object Day {
+
+  implicit class RichInput(s: String) {
+    def toInts: Seq[Int] = toInts()
+
+    def toInts(sep: String = " "): Seq[Int] = s.split(sep)
+      .filter(_.nonEmpty)
+      .map(_.toInt)
+  }
 
   def run(days: Seq[Day]): Unit = {
     for (day <- days) {
